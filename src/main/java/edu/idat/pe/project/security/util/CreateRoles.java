@@ -33,8 +33,9 @@ public class CreateRoles implements CommandLineRunner {
 
 
 
-/*
 
+
+/*
 
 
          Rol rolAdmin = new Rol(RolNombre.ROLE_ADMIN);
@@ -42,6 +43,7 @@ public class CreateRoles implements CommandLineRunner {
          rolService.save(rolAdmin);
          rolService.save(rolUser);
 */
+
 
 
 
