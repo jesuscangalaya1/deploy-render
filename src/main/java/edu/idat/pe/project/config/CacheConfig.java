@@ -21,6 +21,9 @@ public class CacheConfig {
                 new ConcurrentMapCache("origen"),
                 new ConcurrentMapCache("destino"),
                 new ConcurrentMapCache("compras"),
+                new ConcurrentMapCache("Usuario"),
+                new ConcurrentMapCache("Rol"),
+                new ConcurrentMapCache("compras"),
                 new ConcurrentMapCache("vuelo")
         ));
         return cacheManager;

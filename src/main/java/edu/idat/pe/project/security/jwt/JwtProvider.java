@@ -1,12 +1,6 @@
 package edu.idat.pe.project.security.jwt;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.gson.GsonFactory;
 import edu.idat.pe.project.security.dto.JwtDto;
-import edu.idat.pe.project.security.dto.TokenModel;
-import edu.idat.pe.project.security.dto.UserModel;
 import edu.idat.pe.project.security.entity.UsuarioPrincipal;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -21,13 +15,10 @@ import org.springframework.stereotype.Component;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.core.AuthenticationException;
 
 
 import java.security.Key;
 import java.text.ParseException;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;

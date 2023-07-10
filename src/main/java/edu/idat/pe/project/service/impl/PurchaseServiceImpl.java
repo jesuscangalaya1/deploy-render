@@ -87,7 +87,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         return flightEntity;
     }
 
-    @Cacheable(value = "vuelo")
+    @Cacheable(value = "compras")
     @Transactional(readOnly = true)
     @Override
     public List<PurchaseResponse> getCustomerPurchases() {

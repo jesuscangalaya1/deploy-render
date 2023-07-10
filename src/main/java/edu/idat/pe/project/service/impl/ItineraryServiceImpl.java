@@ -1,6 +1,8 @@
 package edu.idat.pe.project.service.impl;
 
 import edu.idat.pe.project.exceptions.BusinessException;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +41,7 @@ public class ItineraryServiceImpl implements ItineraryService {
     private final OriginRepository originRepository;
 
     @Transactional
+    @CacheEvict(value = "itinerario", allEntries = true)
     @Override
     public void save(MultipartFile file) {
         try {
@@ -79,6 +82,7 @@ public class ItineraryServiceImpl implements ItineraryService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "itinerario")
     @Override
     public PageableResponse<ItineraryResponse> pageableItineraries(int numeroDePagina, int medidaDePagina, String ordenarPor, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(ordenarPor).ascending()

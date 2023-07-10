@@ -4,11 +4,13 @@ import edu.idat.pe.project.dto.response.PageableResponse;
 import edu.idat.pe.project.dto.response.RolResponse;
 import edu.idat.pe.project.dto.response.UserResponse;
 import edu.idat.pe.project.exceptions.BusinessException;
-import edu.idat.pe.project.persistence.repositories.UserRepository;
 import edu.idat.pe.project.security.entity.Rol;
 import edu.idat.pe.project.security.entity.Usuario;
+import edu.idat.pe.project.security.repository.UsuarioRepository;
 import edu.idat.pe.project.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +27,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    private final UsuarioRepository userRepository;
 
+    @Cacheable(value = "Usuario")
     @Transactional(readOnly = true)
     @Override
     public PageableResponse<UserResponse> pageableUsers(int numeroDePagina, int medidaDePagina, String ordenarPor, String sortDir) {
@@ -67,6 +70,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "Usuario", allEntries = true)
     @Override
     public void deleteUser(Integer id) {
         Usuario usuario = userRepository.findById(id)
