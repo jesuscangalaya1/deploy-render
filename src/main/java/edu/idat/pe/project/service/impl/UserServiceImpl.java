@@ -29,7 +29,6 @@ public class UserServiceImpl implements UserService {
 
     private final UsuarioRepository userRepository;
 
-    @Cacheable(value = "Usuario")
     @Transactional(readOnly = true)
     @Override
     public PageableResponse<UserResponse> pageableUsers(int numeroDePagina, int medidaDePagina, String ordenarPor, String sortDir) {
@@ -70,7 +69,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    @CacheEvict(value = "Usuario", allEntries = true)
     @Override
     public void deleteUser(Integer id) {
         Usuario usuario = userRepository.findById(id)
