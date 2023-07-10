@@ -11,17 +11,16 @@ import java.util.List;
 
 public interface FlightService {
 
-    void init() throws IOException;
+    //void init() throws IOException;
     void  deleteFlight(Long id);
     PageableResponse<FlightResponse> listFlights(Integer pageNumber, Integer pageSize, Integer priceMin,
                                                  Integer priceMax, String departureDate);
     FlightResponse createFlight(int capacity, String duration, Double price,
-                                MultipartFile image, String departureTime, Long itineraryId);
+                                MultipartFile image, String departureTime, Long itineraryId) throws IOException;
 
     FlightResponse updateFlight(Long id, int capacity, String duration, Double price,
                                        MultipartFile image, String departureTime, Long itineraryId);
 
-    Resource loadAsResource(Long id);
 
     FlightResponse getByIdFligth(Long id);
 

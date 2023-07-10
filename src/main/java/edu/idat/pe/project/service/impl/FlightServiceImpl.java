@@ -3,31 +3,20 @@ package edu.idat.pe.project.service.impl;
 import edu.idat.pe.project.dto.response.FlightResponse;
 import edu.idat.pe.project.dto.response.PageableResponse;
 import edu.idat.pe.project.exceptions.BusinessException;
-import edu.idat.pe.project.persistence.entities.FlightEntity;
 import edu.idat.pe.project.persistence.repositories.FlightRepository;
 import edu.idat.pe.project.reports.exports.ResourceExport;
 import edu.idat.pe.project.service.FlightService;
 import edu.idat.pe.project.utils.PaginationUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -40,19 +29,9 @@ import static edu.idat.pe.project.utils.constants.AppConstants.*;
 public class FlightServiceImpl implements FlightService {
 
     private final FlightRepository flightRepository;
+    private final CloudinaryService cloudinaryService;
     private final ResourceExport resourceExport;
-    private Path rootLocation;
 
-    @Value("${media.location}")
-    private String mediaLocation;
-
-    @PostConstruct
-    @Override
-    public void init() throws IOException {
-        rootLocation = Paths.get(mediaLocation);
-        Files.createDirectories(rootLocation);
-
-    }
 
     @Transactional
     @CacheEvict(value = "vuelo", allEntries = true)
@@ -65,26 +44,30 @@ public class FlightServiceImpl implements FlightService {
     @CacheEvict(value = "vuelo", allEntries = true)
     @Override
     public FlightResponse createFlight(int capacity, String duration, Double price,
-                                       MultipartFile image, String departureTime, Long itineraryId) {
-        try {
-            if (image.isEmpty()) {
-                throw new BusinessException("Failed to store", HttpStatus.NOT_FOUND, "");
-            }
+                                       MultipartFile image, String departureTime, Long itineraryId) throws IOException {
 
-            String filename = image.getOriginalFilename();
-            Path destinationFile = rootLocation.resolve(Paths.get(filename))
-                    .normalize().toAbsolutePath();
-            try (InputStream inputStream = image.getInputStream()) {
-                Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-            }
+        Map uploadResult = cloudinaryService.upload(image);
+        String imageUrl = (String) uploadResult.get("url");
 
-            // Obtener la URL de la imagen **PONER EL "FILENAME" DE LA IMAGEN**
-            return flightRepository.createflight(capacity, duration, price,
-                    filename, departureTime, itineraryId);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to store file", e);
-        }
+
+
+        // Llamamos al método createflight del repositorio para guardar el vuelo en la base de datos
+        FlightResponse response = flightRepository.createflight(capacity, duration, price, imageUrl, departureTime, itineraryId);
+
+        // Construir la instancia de FlightResponse con los detalles del vuelo
+        // Utilizamos la respuesta del repositorio en lugar de la instancia response creada previamente
+        FlightResponse flightResponse = new FlightResponse();
+        flightResponse.setId(response.getId());
+        flightResponse.setCapacity(response.getCapacity());
+        flightResponse.setDuration(response.getDuration());
+        flightResponse.setPrice(response.getPrice());
+        flightResponse.setImage(imageUrl);
+        // Establecer otros detalles del vuelo según sea necesario
+
+        return flightResponse;
     }
+
+
 
     @Transactional
     @CacheEvict(value = "vuelo", allEntries = true)
@@ -96,42 +79,29 @@ public class FlightServiceImpl implements FlightService {
                 throw new BusinessException("Failed to store", HttpStatus.NOT_FOUND, "");
             }
 
-            String filename = image.getOriginalFilename();
-            Path destinationFile = rootLocation.resolve(Paths.get(filename))
-                    .normalize().toAbsolutePath();
-            try (InputStream inputStream = image.getInputStream()) {
-                Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-            }
+            Map uploadResult = cloudinaryService.upload(image);
+            String imageUrl = (String) uploadResult.get("url");
 
-            // Obtener la URL de la imagen **PONER EL "FILENAME" DE LA IMAGEN**
-            return flightRepository.updateFlight(id, capacity, duration, price,
-                    filename, departureTime, itineraryId);
+
+            // Llamamos al método updateFlight del repositorio para actualizar el vuelo en la base de datos
+            FlightResponse response = flightRepository.updateFlight(id, capacity, duration, price, imageUrl, departureTime, itineraryId);
+
+            // Construir la instancia de FlightResponse con los detalles del vuelo
+            // Utilizamos la respuesta del repositorio en lugar de la instancia response creada previamente
+            FlightResponse flightResponse = new FlightResponse();
+            flightResponse.setId(response.getId());
+            flightResponse.setCapacity(response.getCapacity());
+            flightResponse.setDuration(response.getDuration());
+            flightResponse.setPrice(response.getPrice());
+            flightResponse.setImage(imageUrl);
+            // Establecer otros detalles del vuelo según sea necesario
+
+            return flightResponse;
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file", e);
         }
     }
 
-    @Override
-    public Resource loadAsResource(Long id) {
-        try {
-            // Obtener el nombre de archivo de la imagen desde la base de datos
-            String filename = flightRepository.getFlightImageById(id);
-            if (filename == null) {
-                throw new BusinessException("Flight not found with ID:  " + id, HttpStatus.NOT_FOUND, "");
-            }
-
-            Path file = rootLocation.resolve(filename);
-            Resource resource = new UrlResource(file.toUri());
-
-            if (resource.exists() && resource.isReadable()) {
-                return resource;
-            } else {
-                throw new BusinessException("No se pudo leer el archivo: ", HttpStatus.BAD_REQUEST, filename);
-            }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Failed to read file: " + e.getMessage());
-        }
-    }
 
     @Cacheable(value = "vuelo")
     @Transactional(readOnly = true)

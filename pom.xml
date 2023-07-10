@@ -147,6 +147,13 @@
 			<version>9.31</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44 -->
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.24.0</version>
+		</dependency>
+
 
 
 		<dependency>

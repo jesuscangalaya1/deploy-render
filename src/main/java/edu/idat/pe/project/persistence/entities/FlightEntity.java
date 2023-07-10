@@ -9,7 +9,6 @@ import org.hibernate.annotations.Where;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import java.time.LocalTime;
 
 @NoArgsConstructor
 @AllArgsConstructor

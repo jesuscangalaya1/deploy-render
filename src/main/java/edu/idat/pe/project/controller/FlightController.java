@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotBlank;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 
 import static edu.idat.pe.project.utils.constants.AppConstants.FORMATO_EXCEL_ABREVIATURA;
@@ -41,7 +40,7 @@ public class FlightController {
                                                      @RequestParam("price") Double price,
                                                      @RequestParam("file") MultipartFile image,
                                                      @RequestParam("departureTime") String departureTime,
-                                                     @RequestParam("itineraryId") Long itineraryId) {
+                                                     @RequestParam("itineraryId") Long itineraryId) throws IOException {
         return new RestResponse<>(SUCCESS,
                 String.valueOf(HttpStatus.CREATED),
                 "FLIGHT SUCCESSFULLY CREATED",
@@ -101,16 +100,6 @@ public class FlightController {
         return new ResponseEntity<>(fileResource, headers, HttpStatus.OK);
     }
 
-
-    @GetMapping("/image/{id}")
-    public ResponseEntity<Resource> getFile(@PathVariable Long id) throws IOException {
-        Resource file = flightService.loadAsResource(id);
-        String contentType = Files.probeContentType(file.getFile().toPath());
-        return ResponseEntity
-                .ok()
-                .header(HttpHeaders.CONTENT_TYPE, contentType)
-                .body(file);
-    }
 
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
