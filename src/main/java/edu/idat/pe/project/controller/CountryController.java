@@ -4,6 +4,7 @@ import edu.idat.pe.project.dto.response.CountryResponse;
 import edu.idat.pe.project.dto.response.FlightResponse;
 import edu.idat.pe.project.dto.response.PageableResponse;
 import edu.idat.pe.project.dto.response.RestResponse;
+import edu.idat.pe.project.persistence.entities.FlightEntity;
 import edu.idat.pe.project.persistence.repositories.CountrysRepository;
 import edu.idat.pe.project.service.CountrysService;
 import org.springframework.http.HttpStatus;
@@ -24,8 +25,21 @@ public class CountryController {
 
     private final CountrysService countrysService;
 
+
+    @GetMapping(value = "/params2", produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<PageableResponse<FlightResponse>> getFlightss(@RequestParam(value = "pageNo", defaultValue = "1", required = false) Integer pageNumber,
+                                                                      @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
+                                                                      @RequestParam("fechaIda") String fechaIda,
+                                                                      @RequestParam("fechaVuelta") String fechaVuelta) {
+        return new RestResponse<>(SUCCESS,
+                String.valueOf(HttpStatus.OK),
+                "FLIGHTS SUCCESSFULLY READED",
+                countrysService.getFlights2(pageNumber, pageSize ,fechaIda, fechaVuelta));
+    }
+
+
     @GetMapping(value = "/params", produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<PageableResponse<FlightResponse>> getFlights(@RequestParam(value = "pageNo", defaultValue = "1", required = false) Integer pageNumber,
+    public RestResponse<PageableResponse<FlightResponse>> getFlights(@RequestParam(value = "pageNo", defaultValue = "0", required = false) Integer pageNumber,
                                                                      @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
                                                                      @RequestParam("origen") String origen,
                                                                      @RequestParam("destino") String destino,
